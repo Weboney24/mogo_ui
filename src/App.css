@@ -1,0 +1,170 @@
+@import url("./index.css");
+
+body {
+  background-color: #f7f7f7;
+}
+::-webkit-scrollbar {
+  display: none !important;
+}
+/* table */
+:where(.css-dev-only-do-not-override-42nv3w)[class^="ant-table"] [class^="ant-table"],
+:where(.css-dev-only-do-not-override-42nv3w)[class*=" ant-table"] [class^="ant-table"],
+:where(.css-dev-only-do-not-override-42nv3w)[class^="ant-table"] [class*=" ant-table"],
+:where(.css-dev-only-do-not-override-42nv3w)[class*=" ant-table"] [class*=" ant-table"] {
+  background: white !important;
+}
+
+:where(.css-dev-only-do-not-override-42nv3w).ant-table-wrapper .ant-table-thead > tr > th,
+:where(.css-dev-only-do-not-override-42nv3w).ant-table-wrapper .ant-table-thead > tr > td {
+  font-family: var(--primary--font);
+}
+
+/* table pagintion */
+:where(.css-dev-only-do-not-override-42nv3w).ant-table-wrapper .ant-table-pagination.ant-pagination {
+  background: transparent !important;
+}
+
+/* collapse */
+.ant-collapse-header-text,
+.ant-collapse-expand-icon {
+  font-family: var(--primary--font) !important;
+  color: black !important;
+}
+
+/* tabs */
+:where(.css-dev-only-do-not-override-42nv3w).ant-tabs .ant-tabs-tab-btn {
+  font-weight: 500 !important;
+}
+
+:where(.css-dev-only-do-not-override-42nv3w).ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn,
+:where(.css-dev-only-do-not-override-42nv3w).ant-menu-light .ant-menu-submenu-selected > .ant-menu-submenu-title,
+:where(.css-dev-only-do-not-override-42nv3w).ant-menu-light > .ant-menu .ant-menu-submenu-selected > .ant-menu-submenu-title {
+  color: var(--secondary--color) !important;
+}
+:where(.css-dev-only-do-not-override-42nv3w).ant-tabs .ant-tabs-ink-bar,
+:where(.css-dev-only-do-not-override-42nv3w).ant-menu-light .ant-menu-item-selected,
+:where(.css-dev-only-do-not-override-42nv3w).ant-menu-light > .ant-menu .ant-menu-item-selected {
+  background: var(--secondary--color) !important;
+}
+/* tabs end */
+:where(.css-dev-only-do-not-override-42nv3w).ant-menu-light .ant-menu-item-selected,
+:where(.css-dev-only-do-not-override-42nv3w).ant-menu-light > .ant-menu .ant-menu-item-selected {
+  color: white !important;
+}
+
+.ant-collapse-header,
+.ant-collapse-content-box,
+:where(.css-dev-only-do-not-override-42nv3w).ant-collapse > .ant-collapse-item {
+  background-color: white !important;
+
+  border: transparent !important;
+}
+.ant-collapse .ant-collapse-content {
+  border: transparent !important;
+}
+.ant-collapse-header-text {
+  color: var(--secondary--color) !important;
+}
+
+:where(.css-dev-only-do-not-override-42nv3w).ant-upload-wrapper .ant-upload-drag {
+  background-color: white !important;
+}
+
+:where(.css-dev-only-do-not-override-42nv3w).ant-form-item {
+  margin-bottom: 0px !important;
+}
+
+/* antd switch */
+:where(.css-dev-only-do-not-override-42nv3w).ant-switch.ant-switch-small.ant-switch-checked .ant-switch-inner .ant-switch-inner-checked,
+:where(.css-dev-only-do-not-override-42nv3w).ant-switch.ant-switch-small .ant-switch-inner .ant-switch-inner-unchecked {
+  padding-top: 10px !important;
+  text-transform: capitalize !important;
+  font-size: medium;
+}
+
+:where(.css-dev-only-do-not-override-42nv3w).ant-switch.ant-switch-small .ant-switch-handle {
+  height: 90% !important;
+}
+:where(.css-dev-only-do-not-override-42nv3w).ant-switch.ant-switch-checked:hover:not(.ant-switch-disabled),
+:where(.css-dev-only-do-not-override-42nv3w).ant-switch.ant-switch-checked:hover:not(.ant-switch-disabled),
+:where(.css-dev-only-do-not-override-42nv3w).ant-switch.ant-switch-checked {
+  background: var(--primary--color) !important;
+}
+
+.ant-switch-inner-unchecked {
+  color: var(--primary--color) !important;
+  font-weight: bold !important;
+}
+
+/* table td */
+:where(.css-dev-only-do-not-override-42nv3w).ant-table-wrapper .ant-table-tbody > tr > th,
+:where(.css-dev-only-do-not-override-42nv3w).ant-table-wrapper .ant-table-tbody > tr > td {
+  color: var(--primary--color) !important;
+  font-family: var(--primary--font) !important;
+}
+
+:where(.css-dev-only-do-not-override-42nv3w).ant-input-outlined.ant-input-disabled input[disabled],
+:where(.css-dev-only-do-not-override-42nv3w).ant-input-outlined[disabled] input[disabled] {
+  color: black !important;
+}
+
+/* side nav */
+
+:where(.css-dev-only-do-not-override-1okl62o).ant-menu-light .ant-menu-item-selected,
+:where(.css-dev-only-do-not-override-1okl62o).ant-menu-light > .ant-menu .ant-menu-item-selected {
+  background-color: var(--secondary--color) !important;
+  color: white !important;
+}
+
+:where(.css-dev-only-do-not-override-1okl62o).ant-menu-light .ant-menu-submenu-selected > .ant-menu-submenu-title,
+:where(.css-dev-only-do-not-override-1okl62o).ant-menu-light > .ant-menu .ant-menu-submenu-selected > .ant-menu-submenu-title {
+  color: var(--secondary--color) !important;
+  font-weight: bold !important;
+  font-family: var(--primary--font) !important;
+}
+
+.ant-menu-title-content {
+  font-family: var(--primary--font) !important;
+}
+
+.remove_border :where(.css-dev-only-do-not-override-1okl62o).ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector {
+  border-color: transparent !important;
+}
+
+:where(.css-dev-only-do-not-override-1okl62o).ant-form-item {
+  margin-bottom: 0px !important;
+}
+
+:where(.css-dev-only-do-not-override-1okl62o).ant-tabs .ant-tabs-tab:hover,
+:where(.css-dev-only-do-not-override-1okl62o).ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--secondary--color);
+}
+
+:where(.css-dev-only-do-not-override-1okl62o).ant-tabs-top > .ant-tabs-nav .ant-tabs-ink-bar,
+:where(.css-dev-only-do-not-override-1okl62o).ant-tabs-top > div > .ant-tabs-nav .ant-tabs-ink-bar {
+  background: var(--secondary--color);
+}
+
+.anticon {
+  display: flex !important;
+}
+
+.search_box .ant-select-outlined:not(.ant-select-customize-input) .ant-select-selector {
+  border-radius: 0px !important;
+}
+
+/* swiper navigation */
+.swiper-button-prev,
+.swiper-button-next {
+  color: rgba(10, 10, 10, 0.767) !important;
+  width: 30px !important;
+  height: 30px !important;
+  background-color: #ffffffb6 !important;
+  border-radius: 50% !important;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 15px !important;
+  font-weight: bold !important;
+}
