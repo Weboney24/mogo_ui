@@ -58,25 +58,23 @@ const Testimonial = () => {
           modules={[Navigation]}
           className="mySwiper w-full"
         >
-          {testimonials
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .map((res, index) => (
-              <SwiperSlide key={index} className="py-3">
-                <div className="flex flex-col items-center w-full h-auto bg-gray-100 px-4 py-8 shadow-md rounded-lg">
-                  <p className="text-center italic mb-4">“{res.content}”</p>
-                  <Rate allowHalf disabled defaultValue={res.ratings} className="mb-3" />
-                  <div className="flex items-center gap-3">
-                    <Avatar src={res.img} size={50}>
-                      {res.user.charAt(0)}
-                    </Avatar>
-                    <div className="text-left">
-                      <h3 className="text-lg font-semibold">{res.user}</h3>
-                      <p className="text-sm opacity-70">{res.place}</p>
-                    </div>
+          {testimonials.map((res, index) => (
+            <SwiperSlide key={index} className="py-3">
+              <div className="flex flex-col items-center w-full h-auto bg-gray-100 px-4 py-8 shadow-md rounded-lg">
+                <p className="text-center italic mb-4">“{res.content}”</p>
+                <Rate allowHalf disabled defaultValue={res.ratings} className="mb-3" />
+                <div className="flex items-center gap-3">
+                  <Avatar src={res.img} size={50}>
+                    {res.user.charAt(0)}
+                  </Avatar>
+                  <div className="text-left">
+                    <h3 className="text-lg font-semibold">{res.user}</h3>
+                    <p className="text-sm opacity-70">{res.place}</p>
                   </div>
                 </div>
-              </SwiperSlide>
-            ))}
+              </div>
+            </SwiperSlide>
+          ))}
         </Swiper>
 
         <div ref={nextRef} className="absolute right-0 z-20 cursor-pointer -mr-3">
