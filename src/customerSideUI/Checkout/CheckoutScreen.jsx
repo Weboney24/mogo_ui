@@ -15,6 +15,8 @@ import { SiWebmoney } from "react-icons/si";
 import { BsCashCoin } from "react-icons/bs";
 import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
+import axios from "axios";
+let base_url = import.meta.env.VITE_BASE_API_URL;
 
 const CheckoutScreen = () => {
   const [myDeliveryAddress, setMyDeliveryAddress] = useState([]);
@@ -243,48 +245,68 @@ const CheckoutScreen = () => {
     },
   ];
 
+  // const handlePlaceOrder = async () => {
+  //   try {
+  //     if (paymentMethod === "Cash On Delivery") {
+  //       return handlePlace();
+  //     }
+  //     var options = {
+  //       key: "rzp_test_Wdan8rh6RM6vWP",
+  //       key_secret: "iExGzM7nCvTIo41Rk4iV9kye",
+  //       amount: (couponPrice ? Number(couponPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))) : Number(finalPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", [])))) * 100,
+  //       image: "https://themogo.com/static/media/brnad_logo.9d35cee3b0aa4a18a9f6.png",
+  //       currency: "INR",
+  //       name: "MOGO",
+  //       description: "for testing purpose",
+  //       handler: function (response) {
+  //         handlePlace();
+  //       },
+  //       prefill: {
+  //         email: _.get(userData, "product.value.email", ""),
+  //         contact: _.get(userData, "product.value.mobile", ""),
+  //         name: _.get(userData, "product.value.name", ""),
+  //       },
+  //       notes: {
+  //         address: "Razorpay Corporate office",
+  //       },
+  //       theme: {
+  //         color: "#6aac43",
+  //       },
+  //     };
+  //     console.log(options);
+  //     var pay = new window.Razorpay(options);
+  //     console.log(pay);
+  //     pay.open();
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
+
   const handlePlaceOrder = async () => {
     try {
-      // if (paymentMethod === "Cash On Delivery") {
-      return handlePlace();
-      // }
-      // var options = {
-      //   key: "rzp_test_Wdan8rh6RM6vWP",
-      //   key_secret: "iExGzM7nCvTIo41Rk4iV9kye",
-      //   amount:
-      //     (couponPrice
-      //       ? Number(couponPrice) +
-      //         Number(
-      //           getDeliveryChargeTotal(_.get(location, "state.cardData", []))
-      //         )
-      //       : Number(finalPrice) +
-      //         Number(
-      //           getDeliveryChargeTotal(_.get(location, "state.cardData", []))
-      //         )) * 100,
-      //   image:
-      //     "https://themogo.com/static/media/brnad_logo.9d35cee3b0aa4a18a9f6.png",
-      //   currency: "INR",
-      //   name: "MOGO",
-      //   description: "for testing purpose",
-      //   handler: function (response) {
-      //     handlePlace();
-      //   },
-      //   prefill: {
-      //     email: _.get(userData, "product.value.email", ""),
-      //     contact: _.get(userData, "product.value.mobile", ""),
-      //     name: _.get(userData, "product.value.name", ""),
-      //   },
-      //   notes: {
-      //     address: "Razorpay Corporate office",
-      //   },
-      //   theme: {
-      //     color: "#6aac43",
-      //   },
-      // };
-      // var pay = new window.Razorpay(options);
-      // pay.open();
+      if (paymentMethod === "Cash On Delivery") {
+        return handlePlace();
+      }
+
+      const amount = couponPrice ? Number(couponPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))) : Number(finalPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", [])));
+      const payload = {
+        userDetails: userData.product.value,
+        user_id: userData.product.value._id,
+        productDetails: _.get(location, "state.cardData", []),
+        deliveryAddress: setSelectedDeliveryAddress,
+        paymentType: "Online Payment",
+        paymentTotal: amount,
+      };
+
+      console.log(payload);
+      const response = await MakeOrder(payload);
+      console.log(response);
+
+      if (response?.data?.paymentRedirect && response?.data?.url) {
+        window.location.href = response.data.url;
+      }
     } catch (err) {
-      console.log(err);
+      console.error("Payment init error:", err);
     }
   };
 
@@ -309,7 +331,7 @@ const CheckoutScreen = () => {
       };
 
       const result = await MakeOrder(formData);
-  
+
       setPaymentUrl(result.data.url);
       window.open = result.data.url;
       navigate(`${result.data.url}`);
