@@ -6,7 +6,6 @@ import { MakeOrder, getMyDeliveryAddress, veriFyCoupon } from "../../helper/api_
 import _ from "lodash";
 import { ImHome3 } from "react-icons/im";
 import { HiMiniBuildingOffice2 } from "react-icons/hi2";
-import { MdNavigateNext, MdOutlineSkipNext, MdOutlineSkipPrevious } from "react-icons/md";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getDeliveryChargeTotal, getFinalPrice, getFinalSoloPrice } from "../../helper/filter_helper";
 import { requiredRules } from "../../helper/form_validation";
@@ -15,8 +14,6 @@ import { SiWebmoney } from "react-icons/si";
 import { BsCashCoin } from "react-icons/bs";
 import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
-import axios from "axios";
-let base_url = import.meta.env.VITE_BASE_API_URL;
 
 const CheckoutScreen = () => {
   const [myDeliveryAddress, setMyDeliveryAddress] = useState([]);
@@ -92,49 +89,15 @@ const CheckoutScreen = () => {
 
   const [paymentUrl, setPaymentUrl] = useState("");
 
-  // const handleVerifyCoupon = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const result = await veriFyCoupon(couponCode);
-  //     if (_.isEmpty(_.get(result, 'data.data', []))) {
-  //       return setError('Invalid Coupon Code');
-  //     }
-  //     // let applyDiscount =
-  //     //   (Number(_.get(result, 'data.data.coupon_discount', '')) *
-  //     //     getFinalPrice(_.get(route, 'params.state', []))) /
-  //     //   100;
-  //     // console.log(
-  //     //   getFinalSoloPrice(
-  //     //     _.get(route, 'params.state', []),
-  //     //     _.get(result, 'data.data.coupon_discount', ''),
-  //     //   ),
-  //     // );
-
-  //     setCouponPrice(
-  //       getFinalSoloPrice(
-  //         _.get(route, 'params.state', []),
-  //         _.get(result, 'data.data.coupon_discount', ''),
-  //       ),
-  //     );
-  //     setCouponDiscount(_.get(result, 'data.data', ''));
-  //   } catch (err) {
-  //     console.log(err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const handleRemoveCoupon = () => {
     if (couponPrice) {
       setCouponPrice("");
-
       setCouponDiscount("");
     }
   };
 
   const handleFinish = async (values) => {
     try {
-      console.log(values);
       const result = await veriFyCoupon(values.coupon_code);
       if (_.isEmpty(_.get(result, "data.data", []))) {
         return errorMessage("Invalid Coupon Code");
@@ -226,8 +189,6 @@ const CheckoutScreen = () => {
     }
   };
 
-  // console.log(myDeliveryAddress);
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -245,43 +206,6 @@ const CheckoutScreen = () => {
     },
   ];
 
-  // const handlePlaceOrder = async () => {
-  //   try {
-  //     if (paymentMethod === "Cash On Delivery") {
-  //       return handlePlace();
-  //     }
-  //     var options = {
-  //       key: "rzp_test_Wdan8rh6RM6vWP",
-  //       key_secret: "iExGzM7nCvTIo41Rk4iV9kye",
-  //       amount: (couponPrice ? Number(couponPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))) : Number(finalPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", [])))) * 100,
-  //       image: "https://themogo.com/static/media/brnad_logo.9d35cee3b0aa4a18a9f6.png",
-  //       currency: "INR",
-  //       name: "MOGO",
-  //       description: "for testing purpose",
-  //       handler: function (response) {
-  //         handlePlace();
-  //       },
-  //       prefill: {
-  //         email: _.get(userData, "product.value.email", ""),
-  //         contact: _.get(userData, "product.value.mobile", ""),
-  //         name: _.get(userData, "product.value.name", ""),
-  //       },
-  //       notes: {
-  //         address: "Razorpay Corporate office",
-  //       },
-  //       theme: {
-  //         color: "#6aac43",
-  //       },
-  //     };
-  //     console.log(options);
-  //     var pay = new window.Razorpay(options);
-  //     console.log(pay);
-  //     pay.open();
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
-
   const handlePlaceOrder = async () => {
     try {
       if (paymentMethod === "Cash On Delivery") {
@@ -289,31 +213,33 @@ const CheckoutScreen = () => {
       }
 
       const amount = couponPrice ? Number(couponPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))) : Number(finalPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", [])));
+
       const payload = {
         userDetails: userData.product.value,
         user_id: userData.product.value._id,
         productDetails: _.get(location, "state.cardData", []),
-        deliveryAddress: setSelectedDeliveryAddress,
+        deliveryAddress: selectedDeliveryAddress,
         paymentType: "Online Payment",
         paymentTotal: amount,
       };
 
-      console.log(payload);
       const response = await MakeOrder(payload);
-      console.log(response);
+      const { redirectUrl, paymentRedirect } = response.data;
 
-      if (response?.data?.paymentRedirect && response?.data?.url) {
-        window.location.href = response.data.url;
+      if (!redirectUrl || !paymentRedirect) {
+        throw new Error("Missing payment data");
       }
+
+      window.location.href = redirectUrl;
     } catch (err) {
       console.error("Payment init error:", err);
+      errorMessage("Payment Initialization Failed");
     }
   };
 
   useEffect(() => {
     if (paymentUrl) {
       window.location.href = paymentUrl;
-      console.log("dployfgix");
     }
   }, [paymentUrl]);
 
@@ -322,9 +248,7 @@ const CheckoutScreen = () => {
       setLoading(true);
       const formData = {
         productDetails: _.get(location, "state.cardData", []),
-        deliveryAddress: myDeliveryAddress.filter((res) => {
-          return res._id === selectedDeliveryAddress;
-        }),
+        deliveryAddress: myDeliveryAddress.filter((res) => res._id === selectedDeliveryAddress),
         paymentTotal: (couponPrice ? Number(couponPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))) : Number(finalPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))))?.toString(),
         paymentType: paymentMethod,
         coupondiscountDetails: couponDiscount,
@@ -332,9 +256,6 @@ const CheckoutScreen = () => {
 
       const result = await MakeOrder(formData);
 
-      setPaymentUrl(result.data.url);
-      window.open = result.data.url;
-      navigate(`${result.data.url}`);
       Swal.fire({
         position: "center",
         icon: "success",
@@ -342,9 +263,16 @@ const CheckoutScreen = () => {
         showConfirmButton: false,
         timer: 1500,
       });
+
+      // Open the redirect URL if available
+      if (result.data?.url) {
+        window.open(result.data.url, "_blank");
+      }
+
       navigate("/");
     } catch (err) {
       console.log(err);
+      errorMessage("Failed to place order  ");
     } finally {
       setLoading(false);
     }
@@ -421,6 +349,7 @@ const CheckoutScreen = () => {
                 </Tag>
               );
             })}
+
             <Button onClick={handlePlaceOrder} className="w-full lg:w-[400px] h-[50px] bg-secondary text-white mt-10 lg:mt-20">
               Place Order
             </Button>
@@ -455,7 +384,7 @@ const CheckoutScreen = () => {
 
   return (
     <div className="w-screen min-h-screen pt-[10px] px-4 md:px-8 lg:px-16 py-10 !select-none">
-      <Spin spinning={false}>
+      <Spin spinning={loading}>
         <div className="flex items-center justify-between pt-10">
           <h1 className="font-Poppins flex items-center gap-x-2">
             {Item[currentPage].icon}
@@ -478,6 +407,9 @@ const CheckoutScreen = () => {
             {currentPage !== 2 && (
               <h1
                 onClick={() => {
+                  if (currentPage === 0 && !selectedDeliveryAddress) {
+                    return errorMessage("Please select a delivery address");
+                  }
                   setCurrentPage(currentPage + 1);
                 }}
                 className="cursor-pointer font-Poppins flex items-center gap-x-2 h-[50px] text-sm"
