@@ -29,7 +29,74 @@ const CheckoutScreen = () => {
 
   const [paymentMethod, setPaymentMethods] = useState("Cash On Delivery");
 
+ 
+  const [paymentAmount, setPaymentAmount] = useState("");
+
+  const [currentweightamout, setCurrentWeightAmount] = useState("");
   const location = useLocation();
+
+  console.log(location);
+  let rawPrice = _.get(location, "state.cardData[0].product_selling_price", "0");
+  const quantityStr = _.get(location, "state.cardData[0].product_quantity", "");
+
+  const selling_price = parseInt(String(rawPrice).replace(/,/g, ""), 10);
+  const codquantity = parseInt(quantityStr, 10) || 1;
+  console.log(quantityStr, "madhan");
+
+  const totalAmount = selling_price * codquantity;
+
+  function calculateCODCharge(totalAmount) {
+    let baseCharge = 40;
+
+    if (totalAmount <= 1500) {
+      return baseCharge;
+    }
+
+    // Subtract base slab (1500), then calculate extra slabs of 500 each
+    let extraAmount = totalAmount - 1500;
+    let extraSlabs = Math.ceil(extraAmount / 500);
+    let extraCharge = extraSlabs * 15;
+
+    return baseCharge + extraCharge;
+  }
+
+  const codCharge = calculateCODCharge(totalAmount);
+  console.log("Total Amount:", totalAmount);
+  console.log("COD Charge:", codCharge);
+
+  const quantity = parseInt(_.get(location, "state.cardData[0].product_quantity", "1"), 10);
+  const weightPerItem = parseFloat(_.get(location, "state.cardData[0].product_weight", "0"));
+
+  const totalamount = () => {
+    try {
+      const totalWeight = quantity * weightPerItem;
+
+      let charge = 0;
+
+      if (totalWeight >= 0.5) {
+        const firstSlabLimit = 1.1;
+        const slabSize = 1.0;
+        const slabRate = 40;
+
+        charge = slabRate;
+
+        const weightAfterFirstSlab = totalWeight - firstSlabLimit;
+
+        if (weightAfterFirstSlab > 0) {
+          const additionalSlabs = Math.ceil(weightAfterFirstSlab / slabSize);
+          charge += additionalSlabs * slabRate;
+        }
+      }
+
+      setCurrentWeightAmount(charge);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    totalamount();
+  }, []);
 
   const NoDeliveryAddress = () => {
     return (
@@ -158,7 +225,7 @@ const CheckoutScreen = () => {
             {/* delivery charge   */}
             <div className="flex items-center justify-between pt-2 font-Poppins text-sm">
               <div>Delivery Charge</div>
-              <div>₹{Number(getDeliveryChargeTotal(_.get(location, "state.cardData", [])))}</div>
+              <div>₹{currentweightamout}</div>
             </div>
             {/* coupon percentage   */}
             {_.get(couponDiscount, "coupon_discount", "") && (
@@ -171,7 +238,7 @@ const CheckoutScreen = () => {
             <hr />
             <div className="flex items-center justify-between pt-2 font-Poppins text-sm">
               <div>Final Total</div>
-              <div>₹{(couponPrice ? Number(couponPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))) : Number(finalPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))))?.toLocaleString()}</div>
+              <div>₹{(couponPrice ? Number(couponPrice) + Number(currentweightamout) : Number(finalPrice) + Number(currentweightamout))?.toLocaleString()}</div>
             </div>
           </div>
         </div>
@@ -197,51 +264,16 @@ const CheckoutScreen = () => {
     {
       id: 1,
       name: "Online Payment",
+      price: `${(couponPrice ? Number(couponPrice) + Number(currentweightamout) : Number(finalPrice) + Number(currentweightamout))?.toString()}`,
       icon: <SiWebmoney />,
     },
     {
       id: 2,
+      price: `${(couponPrice ? Number(couponPrice) + Number(currentweightamout) : Number(finalPrice) + Number(currentweightamout) + codCharge)?.toString()}`,
       name: "Cash On Delivery",
       icon: <BsCashCoin />,
     },
   ];
-
-  const handlePlaceOrder = async () => {
-    try {
-      if (paymentMethod === "Cash On Delivery") {
-        return handlePlace();
-      }
-
-      const amount = couponPrice ? Number(couponPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))) : Number(finalPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", [])));
-
-      const payload = {
-        userDetails: userData.product.value,
-        user_id: userData.product.value._id,
-        productDetails: _.get(location, "state.cardData", []),
-        deliveryAddress: selectedDeliveryAddress,
-        paymentType: "Online Payment",
-        paymentTotal: amount,
-      };
-
-      const response = await MakeOrder(payload);
-      const { redirectUrl, paymentRedirect } = response.data;
-
-      if (!redirectUrl || !paymentRedirect) {
-        throw new Error("Missing payment data");
-      }
-
-      window.location.href = redirectUrl;
-    } catch (err) {
-      console.error("Payment init error:", err);
-      errorMessage("Payment Initialization Failed");
-    }
-  };
-
-  useEffect(() => {
-    if (paymentUrl) {
-      window.location.href = paymentUrl;
-    }
-  }, [paymentUrl]);
 
   const handlePlace = async () => {
     try {
@@ -249,7 +281,7 @@ const CheckoutScreen = () => {
       const formData = {
         productDetails: _.get(location, "state.cardData", []),
         deliveryAddress: myDeliveryAddress.filter((res) => res._id === selectedDeliveryAddress),
-        paymentTotal: (couponPrice ? Number(couponPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))) : Number(finalPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))))?.toString(),
+        paymentTotal: _.get(paymentMethods, "[1].price", ""),
         paymentType: paymentMethod,
         coupondiscountDetails: couponDiscount,
       };
@@ -277,6 +309,42 @@ const CheckoutScreen = () => {
       setLoading(false);
     }
   };
+
+  const handlePlaceOrder = async () => {
+    try {
+      if (paymentMethod === "Cash On Delivery") {
+        return handlePlace();
+      }
+
+      const payload = {
+        userDetails: userData.product.value,
+        user_id: userData.product.value._id,
+        productDetails: _.get(location, "state.cardData", []),
+        deliveryAddress: myDeliveryAddress.find((res) => res._id === selectedDeliveryAddress),
+        paymentTotal: _.get(paymentMethods, "[0].price", ""),
+        paymentType: paymentMethod,
+        coupondiscountDetails: couponDiscount,
+      };
+
+      const response = await MakeOrder(payload);
+      const { redirectUrl, paymentRedirect } = response.data;
+
+      if (!redirectUrl || !paymentRedirect) {
+        throw new Error("Missing payment data");
+      }
+
+      window.location.href = redirectUrl;
+    } catch (err) {
+      console.error("Payment init error:", err);
+      errorMessage("Payment Initialization Failed");
+    }
+  };
+
+  useEffect(() => {
+    if (paymentUrl) {
+      window.location.href = paymentUrl;
+    }
+  }, [paymentUrl]);
 
   const PaymentDetails = () => {
     return (
@@ -314,7 +382,7 @@ const CheckoutScreen = () => {
             {/* delivery charge   */}
             <div className="flex items-center justify-between pt-2 font-Poppins text-sm">
               <div>Delivery Charge</div>
-              <div>₹{Number(getDeliveryChargeTotal(_.get(location, "state.cardData", [])))}</div>
+              <div>₹{currentweightamout}</div>
             </div>
             {/* coupon percentage   */}
             {_.get(couponDiscount, "coupon_discount", "") && (
@@ -327,7 +395,7 @@ const CheckoutScreen = () => {
             <hr />
             <div className="flex items-center justify-between pt-2 font-Poppins text-sm">
               <div>Final Total</div>
-              <div>₹{(couponPrice ? Number(couponPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))) : Number(finalPrice) + Number(getDeliveryChargeTotal(_.get(location, "state.cardData", []))))?.toLocaleString()}</div>
+              <div>₹{(couponPrice ? Number(couponPrice) + Number(currentweightamout) : Number(finalPrice) + Number(currentweightamout))?.toLocaleString()}</div>
             </div>
           </div>
         </div>
@@ -340,12 +408,14 @@ const CheckoutScreen = () => {
                   color={paymentMethod === res.name ? "green" : ""}
                   onClick={() => {
                     setPaymentMethods(res.name);
+                    setPaymentAmount(res.price);
                   }}
                   key={index}
                   className="flex items-center !m-0 cursor-pointer w-full lg:w-[400px] gap-x-3 h-[50px] lg:px-5"
                 >
                   {res.icon}
                   {res.name}
+                  <span className="font-bold text-sm"> ₹{res.price}</span>
                 </Tag>
               );
             })}

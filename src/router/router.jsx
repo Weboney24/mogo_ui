@@ -39,6 +39,7 @@ import Terms from "../pages/rest/policy/Terms";
 import PrivacyPolicy from "../pages/rest/policy/PrivacyPolicy";
 import Review from "../pages/Dashboard/review/Review";
 import Testmonial from "../pages/Dashboard/testmonial/Testmonial";
+import PaymentSuccess from "../customerSideUI/payment/paymentsucess";
 
 export const router = createBrowserRouter([
   {
@@ -88,6 +89,16 @@ export const router = createBrowserRouter([
       {
         path: "/privacy_policy",
         element: <PrivacyPolicy />,
+      },
+    ],
+  },
+  {
+    path: "/payment-sucess",
+    element: <CustomerLayout />,
+    children: [
+      {
+        path: "/payment-sucess",
+        element: <PaymentSuccess />,
       },
     ],
   },
@@ -181,6 +192,7 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
   {
     path: "/dashboard/special_offers",
     element: <Layout />,

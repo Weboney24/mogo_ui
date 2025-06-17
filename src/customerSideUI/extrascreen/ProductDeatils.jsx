@@ -279,50 +279,31 @@ const ProductDeatils = () => {
     let formData = {
       variant_id: currentVariant,
       product_name: _.get(productDetails, "product_name", ""),
-      product_selling_price: Number(
-        getVariantPrice(currentVariant, productDetails)?.mogo_selling_price
-      ).toLocaleString(),
-      product_mrp_price: Number(
-        getVariantPrice(currentVariant, productDetails)?.mogo_mrp_price
-      ).toLocaleString(),
-
-      vendor_product_selling_price: Number(
-        getVariantPrice(currentVariant, productDetails)?.vendor_selling_price
-      ).toLocaleString(),
-      vendor_product_mrp_price: Number(
-        getVariantPrice(currentVariant, productDetails)?.vendor_mrp_price
-      ).toLocaleString(),
+      product_selling_price: Number(getVariantPrice(currentVariant, productDetails)?.mogo_selling_price).toLocaleString(),
+      product_mrp_price: Number(getVariantPrice(currentVariant, productDetails)?.mogo_mrp_price).toLocaleString(),
+      vendor_product_selling_price: Number(getVariantPrice(currentVariant, productDetails)?.vendor_selling_price).toLocaleString(),
+      vendor_product_mrp_price: Number(getVariantPrice(currentVariant, productDetails)?.vendor_mrp_price).toLocaleString(),
 
       product_image: currentImage,
       subcategory_id: _.get(productDetails, "product_sub_category_name", ""),
       product_quantity: quantity,
-      product_finalTotal: Number(
-        getVariantPrice(currentVariant, productDetails)?.mogo_selling_price *
-          quantity
-      ).toLocaleString(),
-      vendor_product_finalTotal: Number(
-        getVariantPrice(currentVariant, productDetails)?.vendor_selling_price *
-          quantity
-      ).toLocaleString(),
+      product_weight: _.get(productDetails, "product_variants.[0].product_weight", ""),
+      whole_product_weights: _.get(productDetails, "product_variants[0].product_weight", "") * quantity,
+      product_finalTotal: Number(getVariantPrice(currentVariant, productDetails)?.mogo_selling_price * quantity).toLocaleString(),
+      vendor_product_finalTotal: Number(getVariantPrice(currentVariant, productDetails)?.vendor_selling_price * quantity).toLocaleString(),
 
       vendor_id: _.get(productDetails, "user_id._id", ""),
+      vender_name: _.get(productDetails, "user_id.first_name", "") + " " + _.get(productDetails, "user_id.last_name", ""),
       vendor_store: _.get(productDetails, "user_id.company_name", ""),
+      vender_address: _.get(productDetails, "user_id.company_name", "") + ", " + _.get(productDetails, "user_id.address", "") + ", " + _.get(productDetails, "user_id.state", "") + ", " + _.get(productDetails, "user_id.country", "") + ", " + _.get(productDetails, "user_id.zipcode", ""),
+      vender_zipcode: _.get(productDetails, "user_id.zipcode", ""),
+      vender_phone: _.get(productDetails, "user_id.phone_number", ""),
+
       order_status: "confirmed",
       invoice_no: `MOGO${uuid4().slice(0, 6)}`,
-      variant_color: _.get(
-        getVariantPrice(currentVariant, productDetails),
-        "product_variant_color",
-        ""
-      ),
+      variant_color: _.get(getVariantPrice(currentVariant, productDetails), "product_variant_color", ""),
       product_id: product_id,
-      deliveryCharge: getDeliveryChargesPrice(
-        deliveryCharges,
-        _.get(
-          getVariantPrice(currentVariant, productDetails),
-          "product_weight",
-          ""
-        )
-      ),
+      deliveryCharge: getDeliveryChargesPrice(deliveryCharges, _.get(getVariantPrice(currentVariant, productDetails), "product_weight", "")),
     };
     navigate("/checkout", {
       state: {
