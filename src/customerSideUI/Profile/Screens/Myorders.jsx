@@ -157,7 +157,7 @@ const Myorders = () => {
                 }}
                 loading={loading}
                 extra={<div>{moment(_.get(res, "createdAt", [])).format("D MMM yyyy")}</div>}
-                title={<div className="text-[12px] text-primary line-clamp-1 w-[80%]">{_.get(result, "order_status", "")}</div>}
+                title={<div className={`text-[12px] text-primary line-clamp-1 w-[80%] ${_.get(result, "order_status", "") === "Delivered" && "text-secondary"} ${_.get(result, "order_status", "") === "Cancelled" && "text-red-500"}`}>{_.get(result, "order_status", "")}</div>}
                 actions={[
                   <div onClick={() => handleTrackOrder(res, result)} className="font-Poppins text-secondary">
                     Track Order

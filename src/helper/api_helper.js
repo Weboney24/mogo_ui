@@ -306,3 +306,5 @@ export const makeComment = async (formData) => await customerAxiosRequest.post(`
 export const getVariantComments = async (id) => await customerAxiosRequest.get(`${base_url}/customerui/get_single_variant_comments/${id}`);
 
 export const deleteVariantComments = async (id) => await customerAxiosRequest.delete(`${base_url}/customerui/delete_single_variant_comments/${id}`);
+
+export const cancelOrderApi = async (id) => await customerAxiosRequest.post(`${base_url}/customerui/order_cancel/${id}`);

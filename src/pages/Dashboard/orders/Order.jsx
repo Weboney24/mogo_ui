@@ -4,7 +4,7 @@ import { IconHelper } from "../../../helper/IconHelper";
 import { getAllOrders, updateOrderStatus } from "../../../helper/api_helper";
 import { ErrorNotification, SuccessNotification } from "../../../helper/notification_helper";
 import _ from "lodash";
-import { Badge, Image, Select, Tag } from "antd";
+import { Badge, Image, Select } from "antd";
 
 import moment from "moment";
 
@@ -203,26 +203,34 @@ const Order = () => {
 
                           {_.get(result, "order_status", "") === "Delivered" ? (
                             <h1 className="!h-[40px] center_div !text-secondary">Delivered</h1>
+                          ) : _.get(result, "order_status", "") === "Cancelled" ? (
+                            <h1 className="!h-[40px] center_div !text-red-500">Cancelled</h1>
                           ) : _.get(userData, "role.currentRole.role", "") === "admin" ? (
-                            <h1 className="!h-[40px] center_div !text-primary">{_.get(result, "order_status", "")}</h1>
+                            <h1 className="!h-[40px] center_div !text-primary">
+                              {_.get(result, "order_status", "")}
+                            </h1>
                           ) : (
                             <Select
                               style={{ border: "none" }}
-                              className="w-[100%] antd_input2 !h-[40px] !rounded-none  bottom-0 left-0 right-0"
-                              onChange={(status) => {
-                                handleStatusChange(status, res._id, _.get(result, "invoice_no", ""), _.get(res, "userDetails[0].id", []));
-                              }}
+                              className="w-[100%] antd_input2 !h-[40px] !rounded-none"
+                              onChange={(status) =>
+                                handleStatusChange(
+                                  status,
+                                  res._id,
+                                  _.get(result, "invoice_no", ""),
+                                  _.get(res, "userDetails[0].id", "")
+                                )
+                              }
                               value={_.get(result, "order_status", "")}
                             >
-                              {getAvailableList(_.get(result, "order_status", ""))?.map((res, index) => {
-                                return (
-                                  <Select key={index} value={res.name}>
-                                    <p className="!text-[14px] !line-clamp-1 ">{_.get(res, "name", "")}</p>
-                                  </Select>
-                                );
-                              })}
+                              {getAvailableList(_.get(result, "order_status", ""))?.map((option, index) => (
+                                <Select.Option key={index} value={option.name}>
+                                  <p className="!text-[14px] !line-clamp-1">{option.name}</p>
+                                </Select.Option>
+                              ))}
                             </Select>
                           )}
+
                         </div>
                       </div>
                     </Badge.Ribbon>
